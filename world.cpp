@@ -21,11 +21,16 @@ int gWidth = 400;
 int cnt = 0;
 int ang = 0;
 bool isPaused = false;
-float eye[3] = {800,800,10};
+float eye[3] = {-50,-40,1};
 const int planeSize = 800;
-int numOfMountains = 20;
+int numOfMountains = 200;
 vector<int[2]> mountains = vector<int[2]>();
 float heightMap[planeSize][planeSize];
+
+float light_pos[2][4] = {{3,5,800,1}, {1,-5,400,1} };
+float amb[2][4] = { {0,0,1,0.5} , {0,0.2,1,0.5} };
+float diff[2][4] = { {0,0,1,1} , {1,0,0,1}  };
+float spec[2][4] = { {1,1,1,1}, {1,0,1,1}  };
 
 
 // void setMaterials(unsigned int index) {
@@ -49,8 +54,8 @@ void intializeHeightMap(){
 
 void circleAlgo(int x, int y){
 
-    int radius = static_cast <int> (rand()) % 100 + 1;
-    float disp = static_cast <int> (rand()) % 100 + 100;
+    int radius = static_cast <int> (rand()) % 100 + 10;
+    float disp = static_cast <int> (rand()) % 1000 + 1;
 
     for ( int i = 0; i < planeSize; i++){
         for ( int j = 0; j < planeSize; j++){
@@ -79,7 +84,6 @@ void fillHeightMap(){
         int y = static_cast <int> (rand()) % planeSize; 
         // mountains.push_back({x, y});
         circleAlgo(x,y);
-        heightMap[x][y] = (static_cast <int> (rand())) % 20 + 10;
     }
 
     
@@ -145,7 +149,7 @@ void draw3DScene(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(eye[0], eye[1], eye[2], 0, 8, 0, 0, 0, 1);
+    gluLookAt(eye[0], eye[1], eye[2], planeSize/2, planeSize/2, 0, 0, 0, 1);
     
 
     createPlane();
@@ -254,6 +258,14 @@ int main(int argc, char** argv)
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, amb[0]);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diff[0]);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, spec[0]);
+    glLightfv(GL_LIGHT1, GL_POSITION, light_pos[1]);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, amb[1]);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, diff[1]);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, spec[1]);
 
     
     glutReshapeFunc(reshape);
