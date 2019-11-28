@@ -24,7 +24,7 @@ PROGRAM_NAME= world
 run: $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)$(EXEEXT)
 
-$(PROGRAM_NAME): world.o 
+$(PROGRAM_NAME): PPM.o world.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 clean:

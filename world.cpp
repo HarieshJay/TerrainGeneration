@@ -1,9 +1,11 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <iostream>
 #include <vector>
 #include <math.h>
 
 #ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
 #  include <OpenGL/gl.h>
 #  include <OpenGL/glu.h>
 #  include <GLUT/glut.h>
@@ -13,8 +15,9 @@
 #  include <GL/freeglut.h>
 #endif
 
-using namespace std;
+#include "PPM.h"
 
+using namespace std;
 
 int gHeight = 400;
 int gWidth = 400;
@@ -23,10 +26,14 @@ bool isPaused = false;
 int wireframe = 0;
 int maxHeight = 30;
 bool isDrawingWireFrame = false;
+int texCounter = 0;
 
 const int planeSize = 1000;
 // float eye[3] = {planeSize/2, planeSize/2 ,10};
-float eye[3] = {0, 0, 40};
+GLdouble eye[3] = {0, 0, 40};
+GLdouble lookAt[3] = {planeSize, planeSize, 0};
+GLdouble up[] = {0,0,1};
+
 int numOfMountains = planeSize/8;
 // vector<int[2]> mountains = vector<int[2]>();
 float heightMap[planeSize][planeSize];
@@ -46,23 +53,60 @@ float spec[2][4] = { {1,1,1,1}, {1,0,1,1}  };
 
 // }
 
-void intializeHeightMap(){
+//struct to hold image data 
+struct Image 
+{
+    int mWidth;
+    int mHeight;
+    GLubyte * mImage;
 
+    void load(char * filename) {
+        mImage = LoadPPM(filename, &mWidth, &mHeight);
+    }
+
+    void draw(unsigned int x, unsigned int y) {
+        glRasterPos2i(x+mWidth, y);
+
+        //prevent mirroring?
+        glPixelZoom(-1,1);
+        glDrawPixels(mWidth,mHeight, GL_RGB, GL_UNSIGNED_BYTE, mImage);
+    }
+
+    void texture() {
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGB,
+            mWidth,
+            mHeight,
+            0,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            mImage);
+
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+};
+
+Image texture1;
+Image texture2;
+Image texture3;
+
+void intializeHeightMap(){
     for ( int i = 0; i < planeSize; i++){
         for ( int j = 0; j < planeSize; j++){
             heightMap[i][j] = 0;
         }
     }
-
 }
 
 void circleAlgo(int x, int y){
 
-
     int radius = static_cast <int> (rand()) % 300 + 1;
     float disp = static_cast <int> (rand()) % maxHeight + 1;
-
-
     
     for ( int i = 0; i < planeSize; i++){
         for ( int j = 0; j < planeSize; j++){
@@ -77,14 +121,11 @@ void circleAlgo(int x, int y){
         }
     }
 
-
-
 }
 
 void fillHeightMap(){
 
     intializeHeightMap();
-
 
     // Create initial random hills and add them to vector
     for ( int i = 0; i < numOfMountains; i++){
@@ -92,28 +133,14 @@ void fillHeightMap(){
         int y = static_cast <int> (rand()) % planeSize; 
         // mountains.push_back({x, y});
         // cout << x << " " << y << "\n";
-        circleAlgo(x,y);
-        
+        circleAlgo(x,y); 
     }
-
-    
-
 }
 
-
-
-
-void update(){
-
-
-   
-}
-
-
-
+void update(){}
 
 void drawNormalPlane(){
-
+    glPushMatrix();
     for ( int a = 0; a < planeSize; a++){
     
         for ( int b = 0; b < planeSize; b++){
@@ -125,9 +152,13 @@ void drawNormalPlane(){
                 if ( isDrawingWireFrame){
 
                     glColor3f(0,0.7,0.1);
+
                     glVertex3f(a, b, heightMap[a][b]+2);
+
                     glVertex3f(a, b+1, heightMap[a][b+1]+2);
+
                     glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
+
                     glVertex3f(a+1, b , heightMap[a+1][b]+2);
 
                 }
@@ -146,26 +177,22 @@ void drawNormalPlane(){
                     glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
                     glVertex3f(a+1, b , heightMap[a+1][b]);
 
-
-
                 }
-                
             }
             glEnd();
 
         }
     }
+    glPopMatrix();
 }
 
 
 
 void createPlane(){
-
-    
+   
     if ( wireframe == 0){
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        drawNormalPlane();
-        
+        drawNormalPlane();    
     }
 
     else if ( wireframe == 1 ){
@@ -187,21 +214,13 @@ void createPlane(){
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawNormalPlane();
         isDrawingWireFrame = false;
-
-
-        
-
-        
         
     }
-    
 }
-
 
 void reshape( int w, int h){
     gWidth = w;
     gHeight = h;
-
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -219,16 +238,27 @@ void draw3DScene(){
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(45, 1, 1, planeSize);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(eye[0], eye[1], eye[2], planeSize, planeSize, 0, 0, 0, 1);
-    
+
+    //call texture on marbletexture to set our texture paramaters for wireframe.
+    // texture1.texture();
+    // texture2.texture();
+
+    if(texCounter == 1){
+        texture2.texture();
+    } else if (texCounter == 2){
+        texture1.texture();
+    } else if(texCounter == 3){
+        texture3.texture();
+    }
 
     createPlane();
-
     
-   
+    
+
 }
 
 
@@ -239,12 +269,13 @@ void FPS(int val){
     glutTimerFunc(17, FPS, 0); // 1sec = 1000, 60fps = 1000/60 = ~17
 }
 
-
-
 void display()
 {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     draw3DScene();
+
+    glFlush();
     glutSwapBuffers();
 
 }
@@ -267,11 +298,20 @@ void kbd(unsigned char key, int x, int y)
 
             createPlane();
             break;
-       
-
+       case 't':
+            //greater than or equal to three since we need to include terrain without texture
+            if (texCounter > 2){
+                texCounter = 0;
+            } else {
+                texCounter += 1;
+            }
+            break;
+       case 'q':
+       case 27:
+           exit(0);
+           break;
     }
-
-
+    glutPostRedisplay();
 }
 
 void SpecialInput(int key, int x, int y)
@@ -293,10 +333,9 @@ void SpecialInput(int key, int x, int y)
         case GLUT_KEY_RIGHT:
             eye[0]++;
         break;
+    }
+    glutPostRedisplay();
 }
-
-}
-
 
 int main(int argc, char** argv)
 {
@@ -338,18 +377,32 @@ int main(int argc, char** argv)
     //     }
     //     std::cout << std::endl;
     // }
-	fillHeightMap();
-	glutInit(&argc, argv);
+
+    //load textures
+    texture1.load("marble.ppm");
+    texture2.load("carpet.ppm");
+    texture3.load("snail_a.ppm");
+
+    fillHeightMap();
+    glutInit(&argc, argv);
 	glutInitWindowSize(800, 800);
+    glutInitWindowPosition(300,300);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Assignment 4");
 	glutTimerFunc(0, FPS, 0);
-   
-
     
+    glutReshapeFunc(reshape);
+
+	glutKeyboardFunc(kbd);
+    glutSpecialFunc(SpecialInput);
+	glutDisplayFunc(display);
+
+    glEnable(GL_DEPTH_TEST);
+    // glColor3f(1, 1, 1);
 
     glEnable(GL_COLOR_MATERIAL);
     // glEnable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
@@ -361,24 +414,12 @@ int main(int argc, char** argv)
     glLightfv(GL_LIGHT1, GL_DIFFUSE, diff[1]);
     glLightfv(GL_LIGHT1, GL_SPECULAR, spec[1]);
 
-    
-    glutReshapeFunc(reshape);
-	// glEnable(GL_DEPTH_TEST);
+    glClearColor(0, 0, 0, 0);
 
     // glEnable(GL_CULL_FACE);
-    glCullFace( GL_BACK );
-    
+    glCullFace(GL_BACK);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	
-	glClearColor(0, 0, 0, 0);
-
-	glutKeyboardFunc(kbd);
-    glutSpecialFunc(SpecialInput);
-	glutDisplayFunc(display);
-
-	glutMainLoop();
+    glutMainLoop();
 
 	return 0;
 }
