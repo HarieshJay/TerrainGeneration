@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
-// #include <bits/stdc++.h> 
 
 #ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
@@ -22,8 +21,11 @@ using namespace std;
 
 int gHeight = 400;
 int gWidth = 400;
+
 bool isPaused = false;
 int wireframe = 0;
+int maxHeight = 30;
+bool isDrawingWireFrame = false;
 
 const int planeSize = 1000;
 // float eye[3] = {planeSize/2, planeSize/2 ,10};
@@ -103,7 +105,9 @@ void intializeHeightMap(){
 void circleAlgo(int x, int y){
 
     int radius = static_cast <int> (rand()) % 300 + 1;
-    float disp = static_cast <int> (rand()) % 30 + 1;
+    float disp = static_cast <int> (rand()) % maxHeight + 1;
+
+
     
     for ( int i = 0; i < planeSize; i++){
         for ( int j = 0; j < planeSize; j++){
@@ -136,6 +140,8 @@ void fillHeightMap(){
 
 void update(){}
 
+
+
 void drawNormalPlane(){
 
     for ( int a = 0; a < planeSize; a++){
@@ -146,42 +152,75 @@ void drawNormalPlane(){
             glBegin(GL_QUADS);
             if ( a+1 < planeSize && b+1 < planeSize){
 
-                // cout << a << " " << b << " " << heightMap[a][b] << "\n";
+                if ( isDrawingWireFrame){
+
+                    glColor3f(0,0.7,0.1);
+                    glVertex3f(a, b, heightMap[a][b]+2);
+                    glVertex3f(a, b+1, heightMap[a][b+1]+2);
+                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
+                    glVertex3f(a+1, b , heightMap[a+1][b]+2);
+
+                }
+
+                else {
+
+                    glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
+                    glVertex3f(a, b, heightMap[a][b]);
+
+                    glColor3f(heightMap[a][b+1]/maxHeight, maxHeight/heightMap[a][b+1], 0.5f);
+                    glVertex3f(a, b+1, heightMap[a][b+1]);
+
+                    glColor3f(heightMap[a+1][b+1]/maxHeight, maxHeight/heightMap[a+1][b+1], 0.5f);
+                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
+
+                    glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
+                    glVertex3f(a+1, b , heightMap[a+1][b]);
+
+
+
+                }
                 
-                glVertex3f(a, b, heightMap[a][b]);
-
-                glVertex3f(a, b+1, heightMap[a][b+1]);
-
-                glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
-
-                glVertex3f(a+1, b , heightMap[a+1][b]);
             }
             glEnd();
+
         }
     }
 }
 
+
+
 void createPlane(){
    
     if ( wireframe == 0){
-        glColor3f(1,0,0);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         drawNormalPlane();    
     }
 
     else if ( wireframe == 1 ){
-        glColor3f(1,0,0);
+        
+        isDrawingWireFrame = true;
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawNormalPlane();
+        isDrawingWireFrame = false;
     }
     
     else if ( wireframe == 2){
-        glColor3f(1,0,0);
+
+
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         drawNormalPlane();
-        glColor3f(1,1,1);
+
+
+        isDrawingWireFrame = true;
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawNormalPlane();
+        isDrawingWireFrame = false;
+
+
+        
+
+        
+        
     }
 }
 
