@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <vector>
-#include <bits/stdc++.h> 
+#include <math.h>
 
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
@@ -26,7 +26,7 @@ const int planeSize = 1000;
 // float eye[3] = {planeSize/2, planeSize/2 ,10};
 float eye[3] = {0, 0, 40};
 int numOfMountains = planeSize/8;
-vector<int[2]> mountains = vector<int[2]>();
+// vector<int[2]> mountains = vector<int[2]>();
 float heightMap[planeSize][planeSize];
 
 float light_pos[2][4] = {{3,5,800,1}, {1,-5,400,1} };
