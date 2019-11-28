@@ -25,8 +25,10 @@ int gWidth = 400;
 bool isPaused = false;
 int wireframe = 0;
 int maxHeight = 30;
+int minHeight = -30;
 bool isDrawingWireFrame = false;
 int texCounter = 0;
+float displacement = static_cast<int>(rand()) % 5;
 
 int planeSize = 1000;
 // float eye[3] = {planeSize/2, planeSize/2 ,10};
@@ -119,7 +121,6 @@ void circleAlgo(int x, int y){
 
         }
     }
-
 }
 
 void fillHeightMap(){
@@ -219,6 +220,42 @@ void createPlane(){
     }
 }
 
+void faultAlgo()
+{
+    
+    for (int z = 0; z < 2; z++) {
+
+        int v = static_cast<float>(rand());
+        float a = sin(v);
+        float b = cos(v);
+        float d = sqrt(planeSize * planeSize + planeSize * planeSize);
+
+        float c = (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) * d - d / 2;
+        for (int i = 0; i < planeSize; i++)
+        {
+            for (int j = 0; j < planeSize; j++)
+            {
+                if (a * i + b * j - c > 0)
+                {
+                    heightMap[i][j] += displacement;
+                    if(heightMap[i][j] > maxHeight) {
+                        maxHeight = heightMap[i][j];
+                    }
+                }
+                else
+                {
+                    heightMap[i][j] -= displacement;
+                    if (heightMap[i][j] < minHeight)
+                    {
+                        minHeight = heightMap[i][j];
+                    }
+                }
+            }
+        }
+    }
+    
+}
+
 void reshape( int w, int h){
     gWidth = w;
     gHeight = h;
@@ -284,6 +321,10 @@ void display()
 void kbd(unsigned char key, int x, int y)
 {
     switch(key){
+        case 'f':
+            //set all the heights to zero
+            faultAlgo();
+            break;
 
         case 'r':
             fillHeightMap();
