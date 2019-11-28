@@ -19,9 +19,8 @@ using namespace std;
 
 int gHeight = 400;
 int gWidth = 400;
-int cnt = 0;
-int ang = 0;
 bool isPaused = false;
+int wireframe = 0;
 
 const int planeSize = 1000;
 // float eye[3] = {planeSize/2, planeSize/2 ,10};
@@ -90,7 +89,7 @@ void fillHeightMap(){
         int x = static_cast <int> (rand()) % planeSize;
         int y = static_cast <int> (rand()) % planeSize; 
         // mountains.push_back({x, y});
-        cout << x << " " << y << "\n";
+        // cout << x << " " << y << "\n";
         circleAlgo(x,y);
         
     }
@@ -109,16 +108,14 @@ void update(){
 }
 
 
-void createPlane(){
-    glColor3f(0,1,1);
+void drawNormalPlane(){
 
-    
     for ( int a = 0; a < planeSize; a++){
     
         for ( int b = 0; b < planeSize; b++){
 
 
-            glBegin(GL_POINTS);
+            glBegin(GL_QUADS);
             if ( a+1 < planeSize && b+1 < planeSize){
 
                 // cout << a << " " << b << " " << heightMap[a][b] << "\n";
@@ -131,6 +128,43 @@ void createPlane(){
             glEnd();
 
         }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+void createPlane(){
+
+    
+    if ( wireframe == 0){
+        glColor3f(1,0,0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        drawNormalPlane();
+        
+    }
+
+    else if ( wireframe == 1 ){
+        glColor3f(1,0,0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        drawNormalPlane();
+    }
+    
+    else if ( wireframe == 2){
+        glColor3f(1,0,0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        drawNormalPlane();
+        glColor3f(1,1,1);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        drawNormalPlane();
+        
     }
     
 }
@@ -164,15 +198,9 @@ void draw3DScene(){
     
 
     createPlane();
-   
-    cnt++;
 
-    glColor3f(1,0,0);
     
-    ang++;
    
-    // update();
-
 }
 
 
@@ -199,6 +227,18 @@ void kbd(unsigned char key, int x, int y)
 
         case 'r':
             fillHeightMap();
+            break;
+        
+        case 'w':
+            if ( wireframe > 1){
+                wireframe = 0;
+            }
+            else {
+                wireframe++;
+            }
+
+            createPlane();
+            break;
        
 
     }
@@ -210,9 +250,22 @@ void SpecialInput(int key, int x, int y)
 {
     switch(key)
     {
-        
-    }
+        case GLUT_KEY_UP:
+            eye[2]++;        
+        break;
 
+        case GLUT_KEY_DOWN:
+            eye[2]--;
+        break;
+
+        case GLUT_KEY_LEFT:
+            eye[0]--;        
+        break;
+
+        case GLUT_KEY_RIGHT:
+            eye[0]++;
+        break;
+    }
 }
 
 
@@ -267,7 +320,7 @@ int main(int argc, char** argv)
     
 
     glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_LIGHTING);
+    // glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
