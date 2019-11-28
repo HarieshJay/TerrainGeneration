@@ -142,31 +142,44 @@ void update(){}
 
 void drawNormalPlane(){
     glPushMatrix();
-    for ( int a = 0; a < planeSize; a++){
+    for ( int a = 1; a < planeSize; a++){
     
-        for ( int b = 0; b < planeSize; b++){
+        for ( int b = 1; b < planeSize; b++){
 
 
             isTriangleMode ? glBegin(GL_TRIANGLES) : glBegin(GL_QUADS);
 
-            if ( a+1 < planeSize && b+1 < planeSize){
+            if ( a+1 < planeSize && b+1 < planeSize ){
                 
                 if (isTriangleMode){
 
                     if ( isDrawingWireFrame){
+                        
                     glColor3f(0,0.7,0.1);
                     glVertex3f(a, b, heightMap[a][b]+2);
+                    glVertex3f(a+1, b, heightMap[a+1][b]+2);
                     glVertex3f(a, b+1, heightMap[a][b+1]+2);
-                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
+
+                    glVertex3f(a, b, heightMap[a][b]+2);
+                    glVertex3f(a, b-1, heightMap[a][b-1]+2);
+                    glVertex3f(a-1, b, heightMap[a-1][b]+2);
                 }
 
                 else {
+
                     glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
                     glVertex3f(a, b, heightMap[a][b]);
+                    glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a+1][b], 0.5f);
+                    glVertex3f(a+1, b, heightMap[a+1][b]);
                     glColor3f(heightMap[a][b+1]/maxHeight, maxHeight/heightMap[a][b+1], 0.5f);
                     glVertex3f(a, b+1, heightMap[a][b+1]);
-                    glColor3f(heightMap[a+1][b+1]/maxHeight, maxHeight/heightMap[a+1][b+1], 0.5f);
-                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
+
+                    glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
+                    glVertex3f(a, b, heightMap[a][b]);
+                    glColor3f(heightMap[a][b-1]/maxHeight, maxHeight/heightMap[a][b-1], 0.5f);
+                    glVertex3f(a, b-1, heightMap[a][b-1]);
+                    glColor3f(heightMap[a-1][b]/maxHeight, maxHeight/heightMap[a-1][b], 0.5f);
+                    glVertex3f(a-1, b, heightMap[a-1][b]);
                 }
 
 
@@ -440,7 +453,7 @@ int main(int argc, char** argv)
     glClearColor(0, 0, 0, 0);
 
     // glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    // glCullFace(GL_BACK);
 
     glutMainLoop();
 
