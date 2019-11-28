@@ -21,7 +21,7 @@ using namespace std;
 
 int gHeight = 400;
 int gWidth = 400;
-
+bool isTriangleMode = false;
 bool isPaused = false;
 int wireframe = 0;
 int maxHeight = 30;
@@ -147,38 +147,56 @@ void drawNormalPlane(){
         for ( int b = 0; b < planeSize; b++){
 
 
-            glBegin(GL_QUADS);
+            isTriangleMode ? glBegin(GL_TRIANGLES) : glBegin(GL_QUADS);
+
             if ( a+1 < planeSize && b+1 < planeSize){
+                
+                if (isTriangleMode){
 
-                if ( isDrawingWireFrame){
-
+                    if ( isDrawingWireFrame){
                     glColor3f(0,0.7,0.1);
-
                     glVertex3f(a, b, heightMap[a][b]+2);
-
                     glVertex3f(a, b+1, heightMap[a][b+1]+2);
-
                     glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
+                }
 
-                    glVertex3f(a+1, b , heightMap[a+1][b]+2);
+                else {
+                    glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
+                    glVertex3f(a, b, heightMap[a][b]);
+                    glColor3f(heightMap[a][b+1]/maxHeight, maxHeight/heightMap[a][b+1], 0.5f);
+                    glVertex3f(a, b+1, heightMap[a][b+1]);
+                    glColor3f(heightMap[a+1][b+1]/maxHeight, maxHeight/heightMap[a+1][b+1], 0.5f);
+                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
+                }
+
+
 
                 }
 
                 else {
 
+                    if ( isDrawingWireFrame){
+                    glColor3f(0,0.7,0.1);
+                    glVertex3f(a, b, heightMap[a][b]+2);
+                    glVertex3f(a, b+1, heightMap[a][b+1]+2);
+                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
+                    glVertex3f(a+1, b , heightMap[a+1][b]+2);
+                }
+
+                else {
                     glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
                     glVertex3f(a, b, heightMap[a][b]);
-
                     glColor3f(heightMap[a][b+1]/maxHeight, maxHeight/heightMap[a][b+1], 0.5f);
                     glVertex3f(a, b+1, heightMap[a][b+1]);
-
                     glColor3f(heightMap[a+1][b+1]/maxHeight, maxHeight/heightMap[a+1][b+1], 0.5f);
                     glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
-
                     glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
                     glVertex3f(a+1, b , heightMap[a+1][b]);
+                }
+
 
                 }
+                
             }
             glEnd();
 
@@ -238,7 +256,7 @@ void draw3DScene(){
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45, 1, 1, 1000);
+    gluPerspective(45, 1, 1, 2000);
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -288,7 +306,9 @@ void kbd(unsigned char key, int x, int y)
         case 'r':
             fillHeightMap();
             break;
-        
+        case 's':
+            isTriangleMode = !isTriangleMode;
+            break;
         case 'w':
             if ( wireframe > 1){
                 wireframe = 0;
