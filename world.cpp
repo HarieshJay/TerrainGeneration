@@ -121,18 +121,34 @@ void drawNormalPlane(){
             glBegin(GL_QUADS);
             if ( a+1 < planeSize && b+1 < planeSize){
 
-                // cout << a << " " << b << " " << heightMap[a][b] << "\n";
-                isDrawingWireFrame ? glColor3f(0,0,0) : glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
-                glVertex3f(a, b, heightMap[a][b]);
+                if ( isDrawingWireFrame){
 
-                isDrawingWireFrame ? glColor3f(0,0,0) : glColor3f(heightMap[a][b+1]/maxHeight, maxHeight/heightMap[a][b+1], 0.5f);
-                glVertex3f(a, b+1, heightMap[a][b+1]);
+                    glColor3f(0,0.7,0.1);
+                    glVertex3f(a, b, heightMap[a][b]+2);
+                    glVertex3f(a, b+1, heightMap[a][b+1]+2);
+                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
+                    glVertex3f(a+1, b , heightMap[a+1][b]+2);
 
-                isDrawingWireFrame ? glColor3f(0,0,0) : glColor3f(heightMap[a+1][b+1]/maxHeight, maxHeight/heightMap[a+1][b+1], 0.5f);
-                glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
+                }
 
-                isDrawingWireFrame ? glColor3f(0,0,0) : glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
-                glVertex3f(a+1, b , heightMap[a+1][b]);
+                else {
+
+                    glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
+                    glVertex3f(a, b, heightMap[a][b]);
+
+                    glColor3f(heightMap[a][b+1]/maxHeight, maxHeight/heightMap[a][b+1], 0.5f);
+                    glVertex3f(a, b+1, heightMap[a][b+1]);
+
+                    glColor3f(heightMap[a+1][b+1]/maxHeight, maxHeight/heightMap[a+1][b+1], 0.5f);
+                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
+
+                    glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
+                    glVertex3f(a+1, b , heightMap[a+1][b]);
+
+
+
+                }
+                
             }
             glEnd();
 
@@ -152,18 +168,29 @@ void createPlane(){
     }
 
     else if ( wireframe == 1 ){
+        
+        isDrawingWireFrame = true;
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawNormalPlane();
+        isDrawingWireFrame = false;
     }
     
     else if ( wireframe == 2){
+
+
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         drawNormalPlane();
+
 
         isDrawingWireFrame = true;
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawNormalPlane();
         isDrawingWireFrame = false;
+
+
+        
+
+        
         
     }
     
