@@ -21,9 +21,11 @@ int gWidth = 400;
 int cnt = 0;
 int ang = 0;
 bool isPaused = false;
-float eye[3] = {-50,-40,1};
-const int planeSize = 800;
-int numOfMountains = 200;
+
+const int planeSize = 1000;
+// float eye[3] = {planeSize/2, planeSize/2 ,10};
+float eye[3] = {0, 0, 40};
+int numOfMountains = planeSize/8;
 vector<int[2]> mountains = vector<int[2]>();
 float heightMap[planeSize][planeSize];
 
@@ -54,9 +56,12 @@ void intializeHeightMap(){
 
 void circleAlgo(int x, int y){
 
-    int radius = static_cast <int> (rand()) % 100 + 10;
-    float disp = static_cast <int> (rand()) % 1000 + 1;
 
+    int radius = static_cast <int> (rand()) % 300 + 1;
+    float disp = static_cast <int> (rand()) % 30 + 1;
+
+
+    
     for ( int i = 0; i < planeSize; i++){
         for ( int j = 0; j < planeSize; j++){
             int dx = i - x;
@@ -78,12 +83,15 @@ void fillHeightMap(){
 
     intializeHeightMap();
 
+
     // Create initial random hills and add them to vector
     for ( int i = 0; i < numOfMountains; i++){
         int x = static_cast <int> (rand()) % planeSize;
         int y = static_cast <int> (rand()) % planeSize; 
         // mountains.push_back({x, y});
+        cout << x << " " << y << "\n";
         circleAlgo(x,y);
+        
     }
 
     
@@ -108,14 +116,16 @@ void createPlane(){
     
         for ( int b = 0; b < planeSize; b++){
 
-            glBegin(GL_QUADS);
+
+            glBegin(GL_POINTS);
             if ( a+1 < planeSize && b+1 < planeSize){
 
-                glVertex3f(a, b , heightMap[a][b]);
-                glVertex3f(a+1, b, heightMap[a+1][b]);
-                glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
-                glVertex3f(a, b+1, heightMap[a][b+1]);
+                // cout << a << " " << b << " " << heightMap[a][b] << "\n";
                 
+                glVertex3f(a, b, heightMap[a][b]);
+                glVertex3f(a, b+1, heightMap[a][b+1]);
+                glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
+                glVertex3f(a+1, b , heightMap[a+1][b]);
             }
             glEnd();
 
@@ -145,11 +155,11 @@ void draw3DScene(){
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45, 1, 1, 100);
+    gluPerspective(45, 1, 1, planeSize);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(eye[0], eye[1], eye[2], planeSize/2, planeSize/2, 0, 0, 0, 1);
+    gluLookAt(eye[0], eye[1], eye[2], planeSize, planeSize, 0, 0, 0, 1);
     
 
     createPlane();
@@ -185,6 +195,9 @@ void display()
 void kbd(unsigned char key, int x, int y)
 {
     switch(key){
+
+        case 'r':
+            fillHeightMap();
        
 
     }
@@ -234,8 +247,6 @@ int main(int argc, char** argv)
     //     "m -> follow a particle\n"
     //     "t -> add various types of particles and momentums\n");
 
-
-    fillHeightMap();
     // for (int i = 0; i < planeSize; ++i)
     // {
     //     for (int j = 0; j < planeSize; ++j)
@@ -244,7 +255,7 @@ int main(int argc, char** argv)
     //     }
     //     std::cout << std::endl;
     // }
-	
+	fillHeightMap();
 	glutInit(&argc, argv);
 	glutInitWindowSize(800, 800);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -252,7 +263,7 @@ int main(int argc, char** argv)
 	glutTimerFunc(0, FPS, 0);
    
 
-    fillHeightMap();
+    
 
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
@@ -269,9 +280,9 @@ int main(int argc, char** argv)
 
     
     glutReshapeFunc(reshape);
-	glEnable(GL_DEPTH_TEST);
+	// glEnable(GL_DEPTH_TEST);
 
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glCullFace( GL_BACK );
     
 
