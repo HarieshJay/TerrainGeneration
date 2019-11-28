@@ -1,10 +1,12 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <iostream>
 #include <vector>
 #include <math.h>
 // #include <bits/stdc++.h> 
 
 #ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
 #  include <OpenGL/gl.h>
 #  include <OpenGL/glu.h>
 #  include <GLUT/glut.h>
@@ -14,8 +16,9 @@
 #  include <GL/freeglut.h>
 #endif
 
-using namespace std;
+#include "PPM.h"
 
+using namespace std;
 
 int gHeight = 400;
 int gWidth = 400;
@@ -24,7 +27,10 @@ int wireframe = 0;
 
 const int planeSize = 1000;
 // float eye[3] = {planeSize/2, planeSize/2 ,10};
-float eye[3] = {0, 0, 40};
+GLdouble eye[3] = {0, 0, 40};
+GLdouble lookAt[3] = {planeSize, planeSize, 0};
+GLdouble up[] = {0,0,1};
+
 int numOfMountains = planeSize/8;
 // vector<int[2]> mountains = vector<int[2]>();
 float heightMap[planeSize][planeSize];
@@ -44,18 +50,47 @@ float spec[2][4] = { {1,1,1,1}, {1,0,1,1}  };
 
 // }
 
-//global texture values
-//an array for image data
-GLubyte *tex1;
-GLubyte *tex2;
-// GLubyte *tex3;
+//struct to hold image data 
+struct Image 
+{
+    int mWidth;
+    int mHeight;
+    GLubyte * mImage;
 
-GLuint textures[2];
-int texCounter = 0;
+    void load(char * filename) {
+        mImage = LoadPPM(filename, &mWidth, &mHeight);
+    }
 
-int width, height, maximum;
-int width2, height2, maximum2;
-// int width3, height3, maximum3;
+    void draw(unsigned int x, unsigned int y) {
+        glRasterPos2i(x+mWidth, y);
+
+        //prevent mirroring?
+        glPixelZoom(-1,1);
+        glDrawPixels(mWidth,mHeight, GL_RGB, GL_UNSIGNED_BYTE, mImage);
+    }
+
+    void texture() {
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGB,
+            mWidth,
+            mHeight,
+            0,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            mImage
+        );
+
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+};
+
+Image texture1;
+Image texture2;
 
 void intializeHeightMap(){
     for ( int i = 0; i < planeSize; i++){
@@ -113,16 +148,12 @@ void drawNormalPlane(){
 
                 // cout << a << " " << b << " " << heightMap[a][b] << "\n";
                 
-                // glTexCoord2f(0,0);
                 glVertex3f(a, b, heightMap[a][b]);
 
-                // glTexCoord2f(0, 1);
                 glVertex3f(a, b+1, heightMap[a][b+1]);
 
-                // glTexCoord2f(1, 1);
                 glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
 
-                // glTexCoord2f(1, 0);
                 glVertex3f(a+1, b , heightMap[a+1][b]);
             }
             glEnd();
@@ -154,33 +185,6 @@ void createPlane(){
     }
 }
 
-//setting the textures
-void setTex()
-{
-    if(texCounter == 0){
-        //wireframe setting
-        // glColor3f(1, 0, 0);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        // drawNormalPlane();
-        // glColor3f(1,1,1);
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        // drawNormalPlane();
-    } else if (texCounter == 1) {
-        glColor3f(0,0,0);
-        glBindTexture(GL_TEXTURE_2D, textures[0]);
-        drawNormalPlane();
-    } else if (texCounter == 2) {
-        glColor3f(0,1,1);
-        glBindTexture(GL_TEXTURE_2D, textures[1]);
-        drawNormalPlane();
-    } //else if (texCounter == 3) {
-    //     glColor3f(0, 0, 1);
-    //     glBindTexture(GL_TEXTURE_2D, textures[2]);
-    //     drawNormalPlane();
-    // }
-}
-
-
 void reshape( int w, int h){
     gWidth = w;
     gHeight = h;
@@ -201,12 +205,17 @@ void draw3DScene(){
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(45, 1, 1, planeSize);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(eye[0], eye[1], eye[2], planeSize, planeSize, 0, 0, 0, 1);
-    
+
+    //call texture on marbletexture to set our texture paramaters for wireframe.
+    // texture1.texture();
+    // texture2.texture();
+
     createPlane(); 
+    texture2.texture();
 }
 
 
@@ -219,8 +228,11 @@ void FPS(int val){
 
 void display()
 {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     draw3DScene();
+
+    glFlush();
     glutSwapBuffers();
 
 }
@@ -244,13 +256,13 @@ void kbd(unsigned char key, int x, int y)
             createPlane();
             break;
        case 't':
-            //greater than or equal to three since we need to include terrain without texture
-            if (texCounter > 1){
-                texCounter = 0;
-            } else {
-                texCounter += 1;
-            }
-            setTex();
+            // //greater than or equal to three since we need to include terrain without texture
+            // if (texCounter > 1){
+            //     texCounter = 0;
+            // } else {
+            //     texCounter += 1;
+            // }
+            // setTex();
             break;
        case 'q':
        case 27:
@@ -281,128 +293,6 @@ void SpecialInput(int key, int x, int y)
         break;
     }
     glutPostRedisplay();
-}
-
-/* LoadPPM -- loads the specified ppm file, and returns the image data as a GLubyte
- *  (unsigned byte) array. Also returns the width and height of the image, and the
- *  maximum colour value by way of arguments
- *  usage: GLubyte myImg = LoadPPM("myImg.ppm", &width, &height, &max);
- */
-GLubyte *LoadPPM(char *file, int *width, int *height, int *max)
-{
-    GLubyte *img;
-    FILE *fd;
-    int n, m;
-    int k, nm;
-    char c;
-    int i;
-    char b[100];
-    float s;
-    int red, green, blue;
-
-    fd = fopen(file, "r");
-    fscanf(fd, "%[^\n] ", b);
-    if (b[0] != 'P' || b[1] != '3')
-    {
-        printf("%s is not a PPM file!\n", file);
-        exit(0);
-    }
-    printf("%s is a PPM file\n", file);
-    fscanf(fd, "%c", &c);
-    while (c == '#')
-    {
-        fscanf(fd, "%[^\n] ", b);
-        printf("%s\n", b);
-        fscanf(fd, "%c", &c);
-    }
-    ungetc(c, fd);
-    fscanf(fd, "%d %d %d", &n, &m, &k);
-
-    printf("%d rows  %d columns  max value= %d\n", n, m, k);
-
-    nm = n * m;
-
-    img = (GLubyte *)malloc(3 * sizeof(GLuint) * nm);
-
-    s = 255.0 / k;
-
-    for (i = 0; i < nm; i++)
-    {
-        fscanf(fd, "%d %d %d", &red, &green, &blue);
-        img[3 * nm - 3 * i - 3] = red * s;
-        img[3 * nm - 3 * i - 2] = green * s;
-        img[3 * nm - 3 * i - 1] = blue * s;
-    }
-
-    *width = n;
-    *height = m;
-    *max = k;
-
-    return img;
-}
-
-void init(void)
-{
-
-    glMatrixMode(GL_TEXTURE);
-    // glScalef(1, 1, 1);
-
-    tex1 = LoadPPM("carpet.ppm", &width, &height, &maximum);
-
-    tex2 = LoadPPM("marble.ppm", &width2, &height2, &maximum2);
-
-    // tex3 = LoadPPM("carpet.ppm", &width3, &height3, &maximum3);
-
-    glEnable(GL_TEXTURE_2D);
-
-    glGenTextures(2, textures);
-
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex1);
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    glBindTexture(GL_TEXTURE_2D, textures[1]);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width2, height2, 0, GL_RGB, GL_UNSIGNED_BYTE, tex2);
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    // glBindTexture(GL_TEXTURE_2D, textures[2]);
-
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width3, height3, 0, GL_RGB, GL_UNSIGNED_BYTE, tex3);
-
-    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    glClearColor(0, 0, 0, 0);
-    // glColor3f(1, 1, 1);
-
-    glEnable(GL_COLOR_MATERIAL);
-    // glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, amb[0]);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diff[0]);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, spec[0]);
-    glLightfv(GL_LIGHT1, GL_POSITION, light_pos[1]);
-    glLightfv(GL_LIGHT1, GL_AMBIENT, amb[1]);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, diff[1]);
-    glLightfv(GL_LIGHT1, GL_SPECULAR, spec[1]);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    // gluPerspective(45, 1, 1, 100);
 }
 
 int main(int argc, char** argv)
@@ -445,25 +335,46 @@ int main(int argc, char** argv)
     //     }
     //     std::cout << std::endl;
     // }
-	fillHeightMap();
-	glutInit(&argc, argv);
+
+    //load textures
+    texture1.load("/Users/orlandoortega/Desktop/TerrainGeneration/marble.ppm");
+    texture2.load("/Users/orlandoortega/Desktop/TerrainGeneration/carpet.ppm");
+
+    fillHeightMap();
+    glutInit(&argc, argv);
 	glutInitWindowSize(800, 800);
+    glutInitWindowPosition(300,300);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Assignment 4");
 	glutTimerFunc(0, FPS, 0);
     
     glutReshapeFunc(reshape);
-	
-
-    // glEnable(GL_CULL_FACE);
-    glCullFace( GL_BACK );
 
 	glutKeyboardFunc(kbd);
     glutSpecialFunc(SpecialInput);
 	glutDisplayFunc(display);
 
     glEnable(GL_DEPTH_TEST);
-    init();
+    // glColor3f(1, 1, 1);
+
+    glEnable(GL_COLOR_MATERIAL);
+    // glEnable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, amb[0]);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diff[0]);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, spec[0]);
+    glLightfv(GL_LIGHT1, GL_POSITION, light_pos[1]);
+    glLightfv(GL_LIGHT1, GL_AMBIENT, amb[1]);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, diff[1]);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, spec[1]);
+
+    glClearColor(0, 0, 0, 0);
+
+    // glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     glutMainLoop();
 
