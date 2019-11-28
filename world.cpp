@@ -26,6 +26,7 @@ bool isPaused = false;
 int wireframe = 0;
 int maxHeight = 30;
 bool isDrawingWireFrame = false;
+int texCounter = 0;
 
 const int planeSize = 1000;
 // float eye[3] = {planeSize/2, planeSize/2 ,10};
@@ -81,8 +82,7 @@ struct Image
             0,
             GL_RGB,
             GL_UNSIGNED_BYTE,
-            mImage
-        );
+            mImage);
 
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -93,6 +93,7 @@ struct Image
 
 Image texture1;
 Image texture2;
+Image texture3;
 
 void intializeHeightMap(){
     for ( int i = 0; i < planeSize; i++){
@@ -106,8 +107,6 @@ void circleAlgo(int x, int y){
 
     int radius = static_cast <int> (rand()) % 300 + 1;
     float disp = static_cast <int> (rand()) % maxHeight + 1;
-
-
     
     for ( int i = 0; i < planeSize; i++){
         for ( int j = 0; j < planeSize; j++){
@@ -140,10 +139,8 @@ void fillHeightMap(){
 
 void update(){}
 
-
-
 void drawNormalPlane(){
-
+    glPushMatrix();
     for ( int a = 0; a < planeSize; a++){
     
         for ( int b = 0; b < planeSize; b++){
@@ -155,9 +152,13 @@ void drawNormalPlane(){
                 if ( isDrawingWireFrame){
 
                     glColor3f(0,0.7,0.1);
+
                     glVertex3f(a, b, heightMap[a][b]+2);
+
                     glVertex3f(a, b+1, heightMap[a][b+1]+2);
+
                     glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
+
                     glVertex3f(a+1, b , heightMap[a+1][b]+2);
 
                 }
@@ -176,15 +177,13 @@ void drawNormalPlane(){
                     glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
                     glVertex3f(a+1, b , heightMap[a+1][b]);
 
-
-
                 }
-                
             }
             glEnd();
 
         }
     }
+    glPopMatrix();
 }
 
 
@@ -215,11 +214,6 @@ void createPlane(){
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawNormalPlane();
         isDrawingWireFrame = false;
-
-
-        
-
-        
         
     }
 }
@@ -253,8 +247,18 @@ void draw3DScene(){
     // texture1.texture();
     // texture2.texture();
 
-    createPlane(); 
-    texture2.texture();
+    if(texCounter == 1){
+        texture2.texture();
+    } else if (texCounter == 2){
+        texture1.texture();
+    } else if(texCounter == 3){
+        texture3.texture();
+    }
+
+    createPlane();
+    
+    
+
 }
 
 
@@ -295,13 +299,12 @@ void kbd(unsigned char key, int x, int y)
             createPlane();
             break;
        case 't':
-            // //greater than or equal to three since we need to include terrain without texture
-            // if (texCounter > 1){
-            //     texCounter = 0;
-            // } else {
-            //     texCounter += 1;
-            // }
-            // setTex();
+            //greater than or equal to three since we need to include terrain without texture
+            if (texCounter > 2){
+                texCounter = 0;
+            } else {
+                texCounter += 1;
+            }
             break;
        case 'q':
        case 27:
@@ -376,8 +379,9 @@ int main(int argc, char** argv)
     // }
 
     //load textures
-    texture1.load("/Users/orlandoortega/Desktop/TerrainGeneration/marble.ppm");
-    texture2.load("/Users/orlandoortega/Desktop/TerrainGeneration/carpet.ppm");
+    texture1.load("marble.ppm");
+    texture2.load("carpet.ppm");
+    texture3.load("snail_a.ppm");
 
     fillHeightMap();
     glutInit(&argc, argv);
