@@ -223,7 +223,7 @@ void createPlane(){
 void faultAlgo()
 {
     
-    for (int z = 0; z < 2; z++) {
+    for (int z = 0; z < 10; z++) {
 
         int v = static_cast<float>(rand());
         float a = sin(v);
