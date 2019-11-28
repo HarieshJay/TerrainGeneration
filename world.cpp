@@ -28,15 +28,14 @@ int maxHeight = 30;
 bool isDrawingWireFrame = false;
 int texCounter = 0;
 
-const int planeSize = 1000;
+int planeSize = 1000;
 // float eye[3] = {planeSize/2, planeSize/2 ,10};
-GLdouble eye[3] = {0, 0, 40};
-GLdouble lookAt[3] = {planeSize, planeSize, 0};
+GLdouble eye[3] = {0, 0, 60};
+GLdouble lookAt[3];
 GLdouble up[] = {0,0,1};
 
 int numOfMountains = planeSize/8;
-// vector<int[2]> mountains = vector<int[2]>();
-float heightMap[planeSize][planeSize];
+float heightMap[2000][2000];
 
 float light_pos[2][4] = {{3,5,800,1}, {1,-5,400,1} };
 float amb[2][4] = { {0,0,1,0.5} , {0,0.2,1,0.5} };
@@ -124,6 +123,8 @@ void circleAlgo(int x, int y){
 }
 
 void fillHeightMap(){
+
+    numOfMountains = planeSize/8;
 
     intializeHeightMap();
 
@@ -237,11 +238,11 @@ void draw3DScene(){
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45, 1, 1, planeSize);
+    gluPerspective(45, 1, 1, 1000);
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(eye[0], eye[1], eye[2], planeSize, planeSize, 0, 0, 0, 1);
+    gluLookAt(eye[0], eye[1], eye[2], (GLdouble)planeSize, (GLdouble)planeSize, 0, 0, 0, 1);
 
     //call texture on marbletexture to set our texture paramaters for wireframe.
     // texture1.texture();
@@ -339,6 +340,8 @@ void SpecialInput(int key, int x, int y)
 
 int main(int argc, char** argv)
 {
+    printf("How big would you like the world to be?\n");
+    scanf("%d", &planeSize);
     // printf("\n"
     //     "r -> reset\n"
     //     "q -> quit\n"
@@ -379,9 +382,9 @@ int main(int argc, char** argv)
     // }
 
     //load textures
-    texture1.load("marble.ppm");
-    texture2.load("carpet.ppm");
-    texture3.load("snail_a.ppm");
+    texture1.load((char*)"marble.ppm");
+    texture2.load((char*)"carpet.ppm");
+    texture3.load((char*)"snail_a.ppm");
 
     fillHeightMap();
     glutInit(&argc, argv);
