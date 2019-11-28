@@ -123,7 +123,7 @@ void drawNormalPlane(){
 
                 if ( isDrawingWireFrame){
 
-                    glColor3f(0,0.6,0.1);
+                    glColor3f(0,0.7,0.1);
                     glVertex3f(a, b, heightMap[a][b]+2);
                     glVertex3f(a, b+1, heightMap[a][b+1]+2);
                     glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
@@ -168,6 +168,7 @@ void createPlane(){
     }
 
     else if ( wireframe == 1 ){
+        
         isDrawingWireFrame = true;
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         drawNormalPlane();
