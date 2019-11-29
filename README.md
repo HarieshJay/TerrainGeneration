@@ -3,6 +3,8 @@
 
 To run the program just type 'make'.
 
+Warning: The program takes a while to load commands, so please be patient!
+
 ### Keyboard Commands ###
 Press Arrow Keys for viewpoint control in the respective direction
 
@@ -17,6 +19,8 @@ Press R to reset and generate a new random terrain
 Press S to toggle between polygon meshes triangles and quads
 
 Press T to switch between textures
+
+Press keys 1-6, Z, X, C, V, B, N to interact with lighting positioning
 
 Press Q/esc to quit the application
 
