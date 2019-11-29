@@ -199,64 +199,68 @@ void drawNormalPlane(){
                     glVertex3f(a, b, heightMap[a][b]+2);
                     glVertex3f(a, b-1, heightMap[a][b-1]+2);
                     glVertex3f(a-1, b, heightMap[a-1][b]+2);
-                }
+                    } else {
 
-                else {
+                        float a1[3] = {a,b,heightMap[a][b]};
+                        float a2[3] = {a+1,b, heightMap[a+1][b]};
+                        float a3[3] = {a,b+1, heightMap[a][b+1]};
 
-                    float* v1 = new float[3]{a,b,heightMap[a][b]};
-                    float* v2 = new float[3]{a+1,b, heightMap[a+1][b]};
-                    float* v3 = new float[3]{a,b+1, heightMap[a][b+1]}; 
+                        float* v1 = a1;
+                        float* v2 = a2;
+                        float* v3 = a3; 
 
-                    
-                    glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
-                    calculateNormal(v1,v2,v3);
-                    glVertex3f(a, b, heightMap[a][b]);
-                    
-                    
-                    glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a+1][b], 0.5f);
-                    calculateNormal(v2,v1,v3);
-                    glVertex3f(a+1, b, heightMap[a+1][b]);
-                    
-                    
-                    glColor3f(heightMap[a][b+1]/maxHeight, maxHeight/heightMap[a][b+1], 0.5f);
-                    calculateNormal(v3,v1,v2);
-                    glVertex3f(a, b+1, heightMap[a][b+1]);
+                        
+                        glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
+                        calculateNormal(v1,v2,v3);
+                        glVertex3f(a, b, heightMap[a][b]);
+                        
+                        
+                        glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a+1][b], 0.5f);
+                        calculateNormal(v2,v1,v3);
+                        glVertex3f(a+1, b, heightMap[a+1][b]);
+                        
+                        
+                        glColor3f(heightMap[a][b+1]/maxHeight, maxHeight/heightMap[a][b+1], 0.5f);
+                        calculateNormal(v3,v1,v2);
+                        glVertex3f(a, b+1, heightMap[a][b+1]);
 
+                        float a4[3] = {a,b,heightMap[a][b]};
+                        float a5[3] = {a - 1, b, heightMap[a - 1][b]};
+                        float a6[3] = {a,b-1, heightMap[a][b-1]};
 
-                    float* v4 = new float[3]{a,b,heightMap[a][b]};
-                    float* v5 = new float[3]{a-1,b, heightMap[a-1][b]};
-                    float* v6 = new float[3]{a,b-1, heightMap[a][b-1]};
+                        float* v4 = a4;
+                        float* v5 = a5;
+                        float* v6 = a6;
 
-                    
-
-                    glColor3f(heightMap[a-1][b]/maxHeight, maxHeight/heightMap[a-1][b], 0.5f);
-                    calculateNormal(v5,v6,v4);
-                    glVertex3f(a-1, b, heightMap[a-1][b]);
-
-
-                    glColor3f(heightMap[a][b-1]/maxHeight, maxHeight/heightMap[a][b-1], 0.5f);
-                    calculateNormal(v6,v4,v5);
-                    glVertex3f(a, b-1, heightMap[a][b-1]);
-
-                    glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
-                    calculateNormal(v1,v2,v3);
-                    glVertex3f(a, b, heightMap[a][b]);
+                        
+                        glColor3f(heightMap[a][b] / maxHeight, maxHeight / heightMap[a][b], 0.5f);
+                        calculateNormal(v1,v2,v3);
+                        glVertex3f(a, b, heightMap[a][b]);
 
 
-                    
-                }
+                        glColor3f(heightMap[a-1][b]/maxHeight, maxHeight/heightMap[a-1][b], 0.5f);
+                        calculateNormal(v5,v6,v4);
+                        glVertex3f(a-1, b, heightMap[a-1][b]);
 
+                        
 
+                        glColor3f(heightMap[a][b-1]/maxHeight, maxHeight/heightMap[a][b-1], 0.5f);
+                        calculateNormal(v6,v4,v5);
+                        glVertex3f(a, b-1, heightMap[a][b-1]);
 
-                }
+                        
+                    }
+                } else {
 
-                else {
+                    float a1[3] = {a, b, heightMap[a][b]};
+                    float a2[3] = {a + 1, b, heightMap[a + 1][b]};
+                    float a3[3] = {a, b + 1, heightMap[a][b + 1]};
+                    float a4[3] = {a+1,b+1,heightMap[a+1][b+1]};
 
-
-                    float* v1 = new float[3]{a,b,heightMap[a][b]};
-                    float* v2 = new float[3]{a+1,b, heightMap[a+1][b]};
-                    float* v3 = new float[3]{a,b+1, heightMap[a][b+1]}; 
-                    float* v4 = new float[3]{a+1,b+1,heightMap[a+1][b+1]};
+                    float* v1 = a1;
+                    float* v2 = a2;
+                    float* v3 = a3;
+                    float* v4 = a4;
 
                     if ( isDrawingWireFrame){
                     glColor3f(0,0.7,0.1);
@@ -264,31 +268,25 @@ void drawNormalPlane(){
                     glVertex3f(a, b+1, heightMap[a][b+1]+2);
                     glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
                     glVertex3f(a+1, b , heightMap[a+1][b]+2);
-                }
+                    } else {
 
-                else {
-                    
+                        glColor3f(heightMap[a][b] / maxHeight, maxHeight / heightMap[a][b], 0.5f);
+                        calculateNormal(v1, v3,v2);
+                        glVertex3f(a, b, heightMap[a][b]);
 
-                    glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
-                    calculateNormal(v2,v1,v3);
-                    glVertex3f(a+1, b , heightMap[a+1][b]);
+                        glColor3f(heightMap[a][b + 1] / maxHeight, maxHeight / heightMap[a][b + 1], 0.5f);
+                        calculateNormal(v3,v1,v2);
+                        glVertex3f(a, b + 1, heightMap[a][b + 1]);
 
+                        glColor3f(heightMap[a + 1][b + 1] / maxHeight, maxHeight / heightMap[a + 1][b + 1], 0.5f);
+                        calculateNormal(v4,v3,v2);
+                        glVertex3f(a + 1, b + 1, heightMap[a + 1][b + 1]);
 
-                    glColor3f(heightMap[a+1][b+1]/maxHeight, maxHeight/heightMap[a+1][b+1], 0.5f);
-                    calculateNormal(v4,v3,v2);
-                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]);
-
-
-                    glColor3f(heightMap[a][b+1]/maxHeight, maxHeight/heightMap[a][b+1], 0.5f);
-                    calculateNormal(v3,v1,v2);
-                    glVertex3f(a, b+1, heightMap[a][b+1]);
-
-                    glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
-                    calculateNormal(v1, v3,v2);
-                    glVertex3f(a, b, heightMap[a][b]);
-                }
-
-
+                        glColor3f(heightMap[a+1][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
+                        calculateNormal(v2,v1,v3);
+                        glVertex3f(a+1, b , heightMap[a+1][b]);
+                
+                    }
                 }
                 
             }
@@ -423,9 +421,9 @@ void draw3DScene(){
     if(texCounter == 1){
         texture2.texture();
     } else if (texCounter == 2){
-        texture1.texture();
-    } else if(texCounter == 3){
         texture3.texture();
+    } else if(texCounter == 3){
+        texture1.texture();
     }
 
     createPlane();
@@ -593,7 +591,7 @@ int main(int argc, char** argv)
     // glColor3f(1, 1, 1);
 
     glEnable(GL_COLOR_MATERIAL);
-    // glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
