@@ -1,5 +1,5 @@
 # Assignment4 #
-## By: Hariesh Jay(#) and Orlando Ortega(400051876) ##
+## By: Hariesh Jay(400135582) and Orlando Ortega(400051876) ##
 
 To run the program just type 'make'.
 

@@ -194,9 +194,9 @@ void drawNormalPlane(){
                         glVertex3f(a+1, b, heightMap[a+1][b]+2);
                         glVertex3f(a, b+1, heightMap[a][b+1]+2);
 
-                        glVertex3f(a, b, heightMap[a][b]+2);
-                        glVertex3f(a, b-1, heightMap[a][b-1]+2);
                         glVertex3f(a-1, b, heightMap[a-1][b]+2);
+                        glVertex3f(a, b-1, heightMap[a][b-1]+2);
+                        glVertex3f(a, b, heightMap[a][b]+2);
                     } else {
 
                         float a1[3] = {a,b,heightMap[a][b]};
@@ -256,10 +256,10 @@ void drawNormalPlane(){
 
                     if ( isDrawingWireFrame){
                         glColor3f(0,0.7,0.1);
-                        glVertex3f(a, b, heightMap[a][b]+2);
-                        glVertex3f(a, b+1, heightMap[a][b+1]+2);
-                        glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
-                        glVertex3f(a+1, b , heightMap[a+1][b]+2);
+                        glVertex3f(a+1, b , heightMap[a+1][b]+1);
+                        glVertex3f(a+1, b+1, heightMap[a+1][b+1]+1);
+                        glVertex3f(a, b+1, heightMap[a][b+1]+1);
+                        glVertex3f(a, b, heightMap[a][b]+1);
                     } else {
 
                         glColor3f(heightMap[a + 1][b] / maxHeight, maxHeight / heightMap[a][b], 0.5f);
@@ -484,7 +484,56 @@ void kbd(unsigned char key, int x, int y)
                 texCounter += 1;
             }
             break;
-       case 'q':
+       case '1':
+            light_pos[0][0]++;
+            glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
+            break;
+        case '2':
+            light_pos[0][0]--;
+            glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
+            break;
+        case '3':
+            light_pos[0][1]++;
+            glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
+            break;
+        case '4':
+            light_pos[0][1]--;
+            glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
+            break;
+        case '5':
+            light_pos[0][2]++;
+            glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
+            break;
+        case '6':
+            light_pos[0][2]--;
+            glLightfv(GL_LIGHT0, GL_POSITION, light_pos[0]);
+            break;
+
+
+        case 'z':
+            light_pos[1][0]++;
+            glLightfv(GL_LIGHT1, GL_POSITION, light_pos[1]);
+            break;
+        case 'x':
+            light_pos[1][0]--;
+            glLightfv(GL_LIGHT1, GL_POSITION, light_pos[1]);
+            break;
+        case 'c':
+            light_pos[1][1]++;
+            glLightfv(GL_LIGHT1, GL_POSITION, light_pos[1]);
+            break;
+        case 'v':
+            light_pos[1][1]--;
+            glLightfv(GL_LIGHT1, GL_POSITION, light_pos[1]);
+            break;
+        case 'b':
+            light_pos[1][2]++;
+            glLightfv(GL_LIGHT1, GL_POSITION, light_pos[1]);
+            break;
+        case 'n':
+            light_pos[1][2]--;
+            glLightfv(GL_LIGHT1, GL_POSITION, light_pos[1]);
+            break;
        case 27:
            exit(0);
            break;
@@ -531,6 +580,20 @@ int main(int argc, char** argv)
            "down arrow -> move camera down\n"
            "left arrow -> move camera left\n"
            "right arrow -> move camera right\n"
+           "LIGHT1:\n"
+            "1 -> move x in positive\n"
+            "2 -> move x in negative\n"
+            "3 -> move y in positive\n"
+            "4 -> move y in negative\n"
+            "5 -> move z in positive\n"
+            "6 -> move z in negative\n"
+            "LIGHT2:\n"
+            "z -> move x in positive\n"
+            "x -> move x in negative\n"
+            "c -> move y in positive\n"
+            "v -> move y in negative\n"
+            "b -> move z in positive\n"
+            "n -> move z in negative\n"
            "ADDITION CAPABILITIES:\n"
            "F -> Fault Algorithm Applied to Terrain\n"
            "M -> Midpoint Displacement Algorithm applied to Terrain\n");
@@ -555,11 +618,10 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 
     glEnable(GL_DEPTH_TEST);
-    // glColor3f(1, 1, 1);
     glEnable(GL_NORMALIZE);
 
     glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_LIGHTING);
+    // glEnable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
