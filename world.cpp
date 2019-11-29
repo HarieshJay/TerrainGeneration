@@ -334,7 +334,7 @@ void createPlane(){
 void faultAlgo()
 {
     
-    for (int z = 0; z < 2; z++) {
+    for (int z = 0; z < 10; z++) {
 
         int v = static_cast<float>(rand());
         float a = sin(v);
@@ -365,6 +365,30 @@ void faultAlgo()
         }
     }
     
+}
+
+void midPointAlgo()
+{
+    int disp = 5;
+    for (int i = 2; i < planeSize; i += 2)
+    {
+        for (int j = 2; j < planeSize; j += 2)
+        {
+            float &midpoint = heightMap[i][j];
+            // std::cout << midpoint << std::endl;
+
+            float a = heightMap[i-1][j-1];
+            float b = heightMap[i-1][j+1];
+            float c = heightMap[i+1][j-1];
+            float d = heightMap[i+1][j+1];
+
+            midpoint = (a + b + c + d) / 4 + rand() % disp;
+
+            if(midpoint > maxHeight){
+                maxHeight = midpoint;
+            }    
+        }
+    }
 }
 
 void reshape( int w, int h){
@@ -433,8 +457,12 @@ void kbd(unsigned char key, int x, int y)
 {
     switch(key){
         case 'f':
-            //set all the heights to zero
             faultAlgo();
+            maxHeight = 30;
+            break;
+        case 'm':
+            midPointAlgo();
+            maxHeight = 30;
             break;
         case 'l':
             isLightOn = !isLightOn;
