@@ -188,16 +188,15 @@ void drawNormalPlane(){
                 if (isTriangleMode){
 
                     if ( isDrawingWireFrame){
+                
+                        glColor3f(0,0.7,0.1);
+                        glVertex3f(a, b, heightMap[a][b]+2);
+                        glVertex3f(a+1, b, heightMap[a+1][b]+2);
+                        glVertex3f(a, b+1, heightMap[a][b+1]+2);
 
-                                           
-                    glColor3f(0,0.7,0.1);
-                    glVertex3f(a, b, heightMap[a][b]+2);
-                    glVertex3f(a+1, b, heightMap[a+1][b]+2);
-                    glVertex3f(a, b+1, heightMap[a][b+1]+2);
-
-                    glVertex3f(a, b, heightMap[a][b]+2);
-                    glVertex3f(a, b-1, heightMap[a][b-1]+2);
-                    glVertex3f(a-1, b, heightMap[a-1][b]+2);
+                        glVertex3f(a, b, heightMap[a][b]+2);
+                        glVertex3f(a, b-1, heightMap[a][b-1]+2);
+                        glVertex3f(a-1, b, heightMap[a-1][b]+2);
                     } else {
 
                         float a1[3] = {a,b,heightMap[a][b]};
@@ -208,7 +207,6 @@ void drawNormalPlane(){
                         float* v2 = a2;
                         float* v3 = a3; 
 
-                        
                         glColor3f(heightMap[a][b]/maxHeight, maxHeight/heightMap[a][b], 0.5f);
                         calculateNormal(v1,v2,v3);
                         glVertex3f(a, b, heightMap[a][b]);
@@ -257,11 +255,11 @@ void drawNormalPlane(){
                     float* v4 = a4;
 
                     if ( isDrawingWireFrame){
-                    glColor3f(0,0.7,0.1);
-                    glVertex3f(a, b, heightMap[a][b]+2);
-                    glVertex3f(a, b+1, heightMap[a][b+1]+2);
-                    glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
-                    glVertex3f(a+1, b , heightMap[a+1][b]+2);
+                        glColor3f(0,0.7,0.1);
+                        glVertex3f(a, b, heightMap[a][b]+2);
+                        glVertex3f(a, b+1, heightMap[a][b+1]+2);
+                        glVertex3f(a+1, b+1, heightMap[a+1][b+1]+2);
+                        glVertex3f(a+1, b , heightMap[a+1][b]+2);
                     } else {
 
                         glColor3f(heightMap[a + 1][b] / maxHeight, maxHeight / heightMap[a][b], 0.5f);
@@ -281,7 +279,7 @@ void drawNormalPlane(){
                         glVertex3f(a, b, heightMap[a][b]);
                     }
                 }
-                
+            
             }
             glEnd();
         }
@@ -521,44 +519,21 @@ int main(int argc, char** argv)
 {
     printf("How big would you like the world to be?\n");
     scanf("%d", &planeSize);
-    // printf("\n"
-    //     "r -> reset\n"
-    //     "q -> quit\n"
-    //     "space -> stop simulation\n"
-    //     "l -> toggle lights\n"
-    //     "f -> add friction\n"
-    //     "p -> pause simulation\n"
-    //     "r -> reset\n"
-    //     "up arrow -> move camera up\n"
-    //     "down arrow -> move camera down\n"
-    //     "left arrow -> move camera left\n"
-    //     "right arrow -> move camera right\n"
-    //     "LIGHT1:\n"
-    //     "1 -> move x in positive\n"
-    //     "2 -> move x in negative\n"
-    //     "3 -> move y in positive\n"
-    //     "4 -> move y in negative\n"
-    //     "5 -> move z in positive\n"
-    //     "6 -> move z in negative\n"
-    //     "LIGHT2:\n"
-    //     "z -> move x in positive\n"
-    //     "x -> move x in negative\n"
-    //     "c -> move y in positive\n"
-    //     "v -> move y in negative\n"
-    //     "b -> move z in positive\n"
-    //     "n -> move z in negative\n"
-    //     "ADDITION CAPABILITIES:\n"
-    //     "m -> follow a particle\n"
-    //     "t -> add various types of particles and momentums\n");
-
-    // for (int i = 0; i < planeSize; ++i)
-    // {
-    //     for (int j = 0; j < planeSize; ++j)
-    //     {
-    //         std::cout << heightMap[i][j] << ' ';
-    //     }
-    //     std::cout << std::endl;
-    // }
+    printf("\n"
+           "R -> reset\n"
+           "Q/esc -> quit\n"
+           "L -> toggle lighting\n"
+           "T -> switch between textures\n"
+           "P -> toggle shading\n"
+           "S -> toggle polygon mesh\n"
+           "W -> switch between wireframe representations\n"
+           "up arrow -> move camera up\n"
+           "down arrow -> move camera down\n"
+           "left arrow -> move camera left\n"
+           "right arrow -> move camera right\n"
+           "ADDITION CAPABILITIES:\n"
+           "F -> Fault Algorithm Applied to Terrain\n"
+           "M -> Midpoint Displacement Algorithm applied to Terrain\n");
 
     //load textures
     texture1.load((char*)"marble.ppm");
@@ -581,6 +556,7 @@ int main(int argc, char** argv)
 
     glEnable(GL_DEPTH_TEST);
     // glColor3f(1, 1, 1);
+    glEnable(GL_NORMALIZE);
 
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
@@ -600,6 +576,8 @@ int main(int argc, char** argv)
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+
+    
 
     glutMainLoop();
 
